@@ -55,4 +55,6 @@ coverage/
 logs/
 flask_session/
 
-/migrations/
+/api/migrations/
+
+
