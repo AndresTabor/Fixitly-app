@@ -2,10 +2,11 @@ from flask import Blueprint, request, jsonify
 from src.models import User, Role
 from src.config.bd_config import db
 from src.models.schemas.user import UserCreate, UserLogin
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token
 
 auth_bp = Blueprint('auth', __name__)
+bcrypt = Bcrypt()
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
@@ -14,7 +15,7 @@ def register():
         return jsonify({"msg": "Email ya registrado"}), 400
     user = User(
         email=data.email,
-        password=generate_password_hash(data.password),
+        password=bcrypt.generate_password_hash(data.password).decode('utf-8'),
         name=data.name,
         role=Role[data.role]
     )
@@ -26,7 +27,7 @@ def register():
 def login():
     data = UserLogin(**request.json)
     user = User.query.filter_by(email=data.email).first()
-    if user and check_password_hash(user.password, data.password):
+    if user and bcrypt.check_password_hash(user.password, data.password):
         token = create_access_token(identity=user.id)
         return jsonify({"token": token}), 200
     return jsonify({"msg": "Credenciales inválidas"}), 401
