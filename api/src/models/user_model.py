@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from config.bd_config import db
+from src.config.bd_config import db
 from enum import Enum as PyEnum 
 
 class User_Role(str, PyEnum):
@@ -18,6 +18,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False, default=True)
     date_at = db.Column(db.DateTime, unique = False, nullable = False, default=datetime.now(timezone.utc))
     role = db.Column(db.Enum(User_Role, name="user_role_enum"), nullable=False, default=User_Role.CLIENT)
+    is_verified = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
         return f'<User {self.fullname}>'
@@ -32,4 +33,5 @@ class User(db.Model):
             "image": self.image,
             "is_active": self.is_active,
             "date_at": self.date_at.isoformat(),
+            "is_verified": self.is_verified
         }
